@@ -2,6 +2,9 @@ def score():
     import random
     return random.gauss(0,1)
 
+def argmin(alist):
+    return min(enumerate(alist), key=lambda x: x[1])[0]    
+
 class Maze():
     def __init__(self, X=6, Y=4, z=0):
         self.X = X
@@ -10,7 +13,6 @@ class Maze():
         self.dpaths = self.generate()
         
     def generate(self): # Generate a maze using breadth first search
-        import numpy as np
         possible = []
         actual = {}
         current = (0,0)
@@ -21,7 +23,7 @@ class Maze():
             possible.append((current, nxt, score()))
         barred = [current]
         while len(possible) > 0:  
-            ix = np.argmin([x[2] for x in possible]) # index of next direction
+            ix = argmin([x[2] for x in possible]) # index of next direction
             current = possible[ix][1]
             try:
                 actual[possible[ix][0]].append(current)
