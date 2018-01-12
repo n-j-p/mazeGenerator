@@ -10,7 +10,7 @@ class Maze():
         self.X = X
         self.Y = Y
         self.z = z
-        self.dpaths = self.generate()
+        self.generate()
         
     def generate(self): # Generate a maze using breadth first search
         possible = []
@@ -51,36 +51,63 @@ class Maze():
                     possible.append((current, nxt, score()+self.z))
                 else:
                     possible.append((current, nxt, score()))
-            
-        return actual
+        
+        self.dpaths = actual
+        self.draw()
     
     def draw(self):
-        X = -1
-        Y = -1
-        for square in self.dpaths.keys():
-            X = max(X, square[0])
-            Y = max(Y, square[1])
-        X += 1
-        Y += 1
-        repr = [[2,]*X + [0,]]
+        '''Encodes the dictionary of exits as a list of rows by
+        0: No walls
+        1: Wall only to the West
+        2: Wall only to the South
+        3: Wall on South and West sides
+        Assuming the bottom left and top right positions are
+        entries and exits, for example the 2x3 maze:
+        ____
+        | __
+        |   |
+        __|_|
+        
+        is encoded as
+        [[2,2,0],[1,2,0],[1,0,1],[2,3,1]]
+
+        
+         2 2 0
+        -----
+        |1 2 0
+        |  -|
+        |1 0|1
+        | | |
+         2|3|1        
+        -----
+        '''
+        X = self.X # We need an extra row and column to represent
+        Y = self.Y # the outer walls properly
+        repr = [[2,]*X + [0,]] # Represents the top row "above" the maze.
         for i in range(Y):
             row = []
             cury = Y-1-i
             for curx in range(X):
-                c = 0
+                c = 0 # holds the wall encoding
                 if (curx-1, cury) not in self.dpaths[(curx, cury)]:
                     c += 1
                 if (curx, cury-1) not in self.dpaths[(curx, cury)]:
                     c += 2
                 row.append(c)
             if i == 0:
-                row.append(0)
+                row.append(0) # Easterly exit at (X,Y)
             else:
-                row.append(1)
+                row.append(1) # Easterly wall otherwise
             repr.append(row)
-        repr[-1][0] -= 1
+        repr[-1][0] -= 1 # westerly entrance at (0,0)
+        self.repr = repr
+    def __repr__(self):
+        try:
+            repr = self.repr
+        except AttributeError:
+            self.draw()
+        s = ''
         for row in repr:
-            s = ''
             for pos in row:
                 if pos == 1:
                     s += '| '
@@ -90,7 +117,9 @@ class Maze():
                     s += '|_'
                 else:
                     s += '  '
-            print(s)
+            s += '\n'
+                   
+        return s
             
         
         
