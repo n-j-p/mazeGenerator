@@ -9,6 +9,7 @@ t
 ```
 
 produces:
+```
 ______________________________  
 | | |_  | | ______|_  __  |_  
 |   __|_  | __  __| |_  |     |  
@@ -20,6 +21,7 @@ ______________________________
 |_  __|   __| |_  |___|_  __  |  
 | ______| |   | __    |   |   |  
 ________|___|_____|_|___|_|_|_|  
+```
 
 By default, the south-west corner - coordinates (0,0) contains the entrance, and the north-east corner (X,Y) contains the exit.
 
