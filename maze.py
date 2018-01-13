@@ -1,18 +1,53 @@
-def score():
+def score(nxt, ahead, turningPenalty):
+    '''The maze generator chooses the minimum score from all possible unexplored options.
+    Currently, the score is a normal random variate with a possible penalty for turning.'''
     import random
-    return random.gauss(0,1)
-
+    if nxt == ahead:
+        return random.gauss(turningPenalty,1)
+    else:
+        return random.gauss(0,1)    
+    
 def argmin(alist):
     return min(enumerate(alist), key=lambda x: x[1])[0]    
 
 class Maze():
-    def __init__(self, X=6, Y=4, z=0):
+    '''maze.Maze(X, Y, turningPenalty=0)
+    generates a random maze of size (X, Y). Variable turningPenalty penalises turns, so 
+    a negative value of this results in a maze with more long passageways.
+    
+    generate() generates a new maze of size (X, Y), producing dpaths a dictionary of 
+               paths (exits) for each position in the maze (x,y), 0<=x<X, 0<=y<Y.
+    draw() converts the dpaths dictionary into a list of lists for rendering of the maze 
+           see help(maze.draw) for details'''
+    def __init__(self, X, Y, turningPenalty=0):
         self.X = X
         self.Y = Y
-        self.z = z
+        self.turningPenalty = turningPenalty
         self.generate()
+        self.draw()
         
+    def __repr__(self):
+        try:
+            repr = self.repr
+        except AttributeError:
+            self.draw()
+        s = ''
+        for row in repr:
+            for pos in row:
+                if pos == 1:
+                    s += '| '
+                elif pos == 2:
+                    s += '__'
+                elif pos == 3:
+                    s += '|_'
+                else:
+                    s += '  '
+            s += '\n'
+                   
+        return s
+
     def generate(self): # Generate a maze using breadth first search
+        '''Generate a new maze'''
         possible = []
         actual = {}
         current = (0,0)
@@ -20,7 +55,8 @@ class Maze():
             nxt = (current[0] + add[0], current[1] + add[1])
             if nxt[0] < 0 or nxt[0] >= self.X or nxt[1] < 0 or nxt[1] >= self.Y:
                 continue
-            possible.append((current, nxt, score()))
+            ahead = nxt
+            possible.append((current, nxt, score(nxt, ahead, self.turningPenalty)))
         barred = [current]
         while len(possible) > 0:  
             ix = argmin([x[2] for x in possible]) # index of next direction
@@ -47,13 +83,9 @@ class Maze():
                 nxt = (current[0] + add[0], current[1] + add[1])
                 if nxt[0] < 0 or nxt[0] >= self.X or nxt[1] < 0 or nxt[1] >= self.Y or nxt in barred:
                     continue
-                if nxt == ahead:
-                    possible.append((current, nxt, score()+self.z))
-                else:
-                    possible.append((current, nxt, score()))
+                possible.append((current, nxt, score(nxt, ahead, self.turningPenalty)))
         
         self.dpaths = actual
-        self.draw()
     
     def draw(self):
         '''Encodes the dictionary of exits as a list of rows by
@@ -101,25 +133,6 @@ class Maze():
             repr.append(row)
         repr[-1][0] -= 1 # westerly entrance at (0,0)
         self.repr = repr
-    def __repr__(self):
-        try:
-            repr = self.repr
-        except AttributeError:
-            self.draw()
-        s = ''
-        for row in repr:
-            for pos in row:
-                if pos == 1:
-                    s += '| '
-                elif pos == 2:
-                    s += '__'
-                elif pos == 3:
-                    s += '|_'
-                else:
-                    s += '  '
-            s += '\n'
-                   
-        return s
             
         
         
