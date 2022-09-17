@@ -1,15 +1,3 @@
-def score(nxt, ahead, turningPenalty):
-    '''The maze generator chooses the minimum score from all possible unexplored options.
-    Currently, the score is a normal random variate with a possible penalty for turning.'''
-    import random
-    if nxt == ahead:
-        return random.gauss(turningPenalty,1)
-    else:
-        return random.gauss(0,1)    
-    
-def argmin(alist):
-    return min(enumerate(alist), key=lambda x: x[1])[0]    
-
 class Maze():
     '''maze.Maze(X, Y, turningPenalty=0)
     generates a random maze of size (X, Y). Variable turningPenalty penalises turns, so 
@@ -19,12 +7,15 @@ class Maze():
                paths (exits) for each position in the maze (x,y), 0<=x<X, 0<=y<Y.
     draw() converts the dpaths dictionary into a list of lists for rendering of the maze 
            see help(maze.draw) for details'''
-    def __init__(self, X, Y, turningPenalty=0):
+    def __init__(self, X, Y, turningPenalty=0,
+                 random_seed=None):
         self.X = X
         self.Y = Y
         self.turningPenalty = turningPenalty
+        self.random_seed = random_seed
         self.generate()
         self.draw()
+    
         
     def __repr__(self):
         try:
@@ -45,9 +36,23 @@ class Maze():
             s += '\n'
                    
         return s
-
     def generate(self): # Generate a maze using breadth first search
         '''Generate a new maze'''
+        import random
+        if self.random_seed is not None:
+            random.seed(self.random_seed)
+        def _score(nxt, ahead, turningPenalty):
+            '''The maze generator chooses the minimum score from all possible unexplored options.
+            Currently, the score is a normal random variate with a possible penalty for turning.'''
+            if nxt == ahead:
+                return random.gauss(turningPenalty,1)
+            else:
+                return random.gauss(0,1)    
+
+        def _argmin(alist):
+            return min(enumerate(alist), key=lambda x: x[1])[0]    
+
+        
         possible = []
         actual = {}
         current = (0,0)
@@ -56,10 +61,11 @@ class Maze():
             if nxt[0] < 0 or nxt[0] >= self.X or nxt[1] < 0 or nxt[1] >= self.Y:
                 continue
             ahead = nxt
-            possible.append((current, nxt, score(nxt, ahead, self.turningPenalty)))
+            possible.append((current, nxt,
+                             _score(nxt, ahead, self.turningPenalty)))
         barred = [current]
         while len(possible) > 0:  
-            ix = argmin([x[2] for x in possible]) # index of next direction
+            ix = _argmin([x[2] for x in possible]) # index of next direction
             current = possible[ix][1]
             try:
                 actual[possible[ix][0]].append(current)
@@ -83,7 +89,8 @@ class Maze():
                 nxt = (current[0] + add[0], current[1] + add[1])
                 if nxt[0] < 0 or nxt[0] >= self.X or nxt[1] < 0 or nxt[1] >= self.Y or nxt in barred:
                     continue
-                possible.append((current, nxt, score(nxt, ahead, self.turningPenalty)))
+                possible.append((current, nxt,
+                                 _score(nxt, ahead, self.turningPenalty)))
         
         self.dpaths = actual
     
