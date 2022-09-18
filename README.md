@@ -31,5 +31,5 @@ The wall encoding (from maze.draw()) is a list of length Y+1 containing a list o
 2: _ (southerly wall)  
 3: |_ (both walls)  
 
-Due to the nature of the search algorithm, all walls are connected (i.e. no wall islands). This could be changed after the fact by inserting other paths.
+Due to the nature of the search algorithm, all walls are connected (i.e. no wall islands).
    
