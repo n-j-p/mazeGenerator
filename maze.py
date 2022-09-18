@@ -163,9 +163,7 @@ def from_grid( grid = [[2, 2, 2, 2, 2, 2, 2, 0],
                     dpaths[(j, i-1)].append((j,i))
                 except KeyError:
                     pass
-        for x in dpaths.keys():
-            print(x, dpaths[x])
-        print()
+
     dpaths[(0,0)].remove((-1, 0))
     
     #return dpaths
