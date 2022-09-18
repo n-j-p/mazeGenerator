@@ -1,6 +1,6 @@
 class Maze():
-    '''maze.Maze(X, Y, turningPenalty=0)
-    generates a random maze of size (X, Y). Variable turningPenalty penalises turns, so 
+    '''maze.Maze(X, Y, turning_penalty=0)
+    generates a random maze of size (X, Y). Variable turning_penalty penalises turns, so 
     a negative value of this results in a maze with more long passageways.
     
     generate() generates a new maze of size (X, Y), producing dpaths a dictionary of 
@@ -8,11 +8,11 @@ class Maze():
     draw() converts the dpaths dictionary into a list of lists for rendering of the maze 
            see help(maze.draw) for details'''
     def __init__(self, X, Y, generate=True,
-                 turningPenalty=0,
+                 turning_penalty=0,
                  random_seed=None):
         self.X = X
         self.Y = Y
-        self.turningPenalty = turningPenalty
+        self.turning_penalty = turning_penalty
         if generate:
             self.random_seed = random_seed
             self.generate()
@@ -43,11 +43,11 @@ class Maze():
         import random
         if self.random_seed is not None:
             random.seed(self.random_seed)
-        def _score(nxt, ahead, turningPenalty):
+        def _score(nxt, ahead, turning_penalty):
             '''The maze generator chooses the minimum score from all possible unexplored options.
             Currently, the score is a normal random variate with a possible penalty for turning.'''
             if nxt == ahead:
-                return random.gauss(turningPenalty,1)
+                return random.gauss(turning_penalty,1)
             else:
                 return random.gauss(0,1)    
 
@@ -64,7 +64,7 @@ class Maze():
                 continue
             ahead = nxt
             possible.append((current, nxt,
-                             _score(nxt, ahead, self.turningPenalty)))
+                             _score(nxt, ahead, self.turning_penalty)))
         barred = [current]
         while len(possible) > 0:  
             ix = _argmin([x[2] for x in possible]) # index of next direction
@@ -92,7 +92,7 @@ class Maze():
                 if nxt[0] < 0 or nxt[0] >= self.X or nxt[1] < 0 or nxt[1] >= self.Y or nxt in barred:
                     continue
                 possible.append((current, nxt,
-                                 _score(nxt, ahead, self.turningPenalty)))
+                                 _score(nxt, ahead, self.turning_penalty)))
         
         self.dpaths = actual
     
