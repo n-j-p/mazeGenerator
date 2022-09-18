@@ -7,14 +7,16 @@ class Maze():
                paths (exits) for each position in the maze (x,y), 0<=x<X, 0<=y<Y.
     draw() converts the dpaths dictionary into a list of lists for rendering of the maze 
            see help(maze.draw) for details'''
-    def __init__(self, X, Y, turningPenalty=0,
+    def __init__(self, X, Y, generate=True,
+                 turningPenalty=0,
                  random_seed=None):
         self.X = X
         self.Y = Y
         self.turningPenalty = turningPenalty
-        self.random_seed = random_seed
-        self.generate()
-        self.draw()
+        if generate:
+            self.random_seed = random_seed
+            self.generate()
+            self.draw()
     
         
     def __repr__(self):
@@ -140,7 +142,39 @@ class Maze():
             repr.append(row)
         repr[-1][0] -= 1 # westerly entrance at (0,0)
         self.repr = repr
-            
-        
-        
-        
+
+def from_grid( grid = [[2, 2, 2, 2, 2, 2, 2, 0],
+                       [3, 0, 0, 0, 2, 3, 0, 0],
+                       [3, 0, 3, 3, 1, 2, 1, 1],
+                       [2, 2, 2, 2, 2, 2, 2, 1]]):
+    dpaths = {}
+    for i,row in enumerate(grid[::-1][:-1]):
+        for j, val in enumerate(row[:-1]):
+            dpaths[(j,i)] = []
+            if val % 2 == 0:
+                dpaths[(j,i)].append((j-1, i))
+                try:
+                    dpaths[(j-1,i)].append((j, i))
+                except KeyError:
+                    pass
+            if val < 2:
+                dpaths[(j, i)].append((j, i-1))
+                try:
+                    dpaths[(j, i-1)].append((j,i))
+                except KeyError:
+                    pass
+        for x in dpaths.keys():
+            print(x, dpaths[x])
+        print()
+    dpaths[(0,0)].remove((-1, 0))
+    
+    #return dpaths
+    newmaze = Maze(X = len(grid[0]) - 1,
+                   Y = len(grid) - 1,
+                   generate = False)
+    newmaze.dpaths = dpaths
+    prevgrid = grid
+    newmaze.draw()
+    newgrid = newmaze.repr
+    assert prevgrid == newgrid
+    return newmaze
